@@ -38,30 +38,41 @@ function preprocessSqlRow(field, fieldData) {
     };
 }
 
-function renderSqlRow(field, fieldData) {
-  let bareData = preprocessSqlRow(field, fieldData);
-  return renderPreprocessedSqlRow(bareData);
+function preprocessDefinition(entity) {
+  const preprocessedRows = [];
+
+  for (const field in entity.fields) {
+    const fieldData = entity.fields[field];
+    const bareData = preprocessSqlRow(field, fieldData);
+    preprocessedRows.push(bareData);
+  }
+
+  return {
+    name: entity.name,
+    columns: preprocessedRows,
+  };
 }
 
-function renderSqlDefinition(entity) {
-  const PascalCasedName = toPascalCase(entity.name);
+function renderTable(table) {
+  const PascalCasedName = toPascalCase(table.name);
 
   const tableName = `t_${PascalCasedName}`;
   const primaryKeyRow = `ID_${PascalCasedName}`;
 
-  const rows = [
+  const formattedRows = [
     `[${primaryKeyRow}] INT NOT NULL IDENTITY`,
   ];
 
-  const constraints = [
+  const formattedConstraints = [
     `CONSTRAINT [PK_${PascalCasedName}] PRIMARY KEY([${primaryKeyRow}])`,
   ];
 
-  for (let field in entity.fields) {
-    rows.push(renderSqlRow(field, entity.fields[field]));
+  for (const bareData of table.columns) {
+    const formattedRow = renderPreprocessedSqlRow(bareData);
+    formattedRows.push(formattedRow);
   }
 
-  const lines = [...rows, ...constraints];
+  const lines = [...formattedRows, ...formattedConstraints];
 
   const formatLine = arr => arr.map(x => "  " + x + ",\n").join("");
   const formattedLines = formatLine(lines);
@@ -71,6 +82,11 @@ CREATE TABLE ${tableName} (
 ${formattedLines});
 GO;
 `;
+}
+
+function renderSqlDefinition(entity) {
+  const tableData = preprocessDefinition(entity);
+  return renderTable(tableData);
 }
 
 module.exports = {
