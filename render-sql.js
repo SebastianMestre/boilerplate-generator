@@ -55,7 +55,7 @@ function renderTable(table) {
 
   const formattedConstraints = [];
   for (const constraint of table.constraints) {
-    formattedConstraints.push(`CONSTRAINT [${constraint.name}] PRIMARY KEY([${constraint.target}])`);
+    formattedConstraints.push(renderSqlConstraint(constraint));
   }
 
   const formattedColumns = table.columns.map(renderSqlColumn);
@@ -70,6 +70,10 @@ CREATE TABLE ${tableName} (
 ${formattedLines});
 GO;
 `;
+}
+
+function renderSqlConstraint(constraint) {
+  return `CONSTRAINT [${constraint.name}] PRIMARY KEY([${constraint.target}])`;
 }
 
 function renderSqlColumn(bareData) {
@@ -100,8 +104,6 @@ function renderSqlRowBaseType(rowData) {
     default: throw new Error(`Unexpected field base type: ${rowData.type}`);
   }
 }
-
-
 
 module.exports = {
   renderSqlDefinition: renderSqlDefinition
