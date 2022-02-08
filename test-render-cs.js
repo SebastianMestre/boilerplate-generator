@@ -30,3 +30,22 @@ public class PhysicalLocation
 {
 }
 `);
+
+// add a field to make us look at fields
+assert.strictEqual(renderNoCtx(makeDef("physical location", { "latitude": makeDecimal(10, 3) })),
+`
+public class PhysicalLocation
+{
+  public Decimal Latitude { get; private set; }
+}
+`);
+
+// add another field to make us look at all fields
+assert.strictEqual(renderNoCtx(makeDef("physical location", { "latitude": makeDecimal(10, 3), "longitude": makeDecimal(10, 3) })),
+`
+public class PhysicalLocation
+{
+  public Decimal Latitude { get; private set; }
+  public Decimal Longitude { get; private set; }
+}
+`);
