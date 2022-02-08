@@ -6,11 +6,11 @@ function renderNoCtx(definition) {
 }
 
 function makeDecimal(precision, range) {
-  return { type: { base: "decimal", precision, range } };
+  return { type: "decimal", precision, range };
 }
 
 function makeString(limit) {
-  return { type: { base: "string", limit } };
+  return { type: "string", limit };
 }
 
 function makeDef(name, fields) {
@@ -107,7 +107,7 @@ assert.strictEqual(
 renderNoCtx({
   name: "point",
   fields: {
-    "time created at": { type: { base: "datetime" } }
+    "time created at": { type: "datetime" }
   }
 }),
 `
@@ -121,11 +121,11 @@ GO;
 
 // force us to check for invalid types
 assert.throws(() =>
-  renderNoCtx(makeDef("zibble", { "frobble": { type: { base: "zobble" } } })));
+  renderNoCtx(makeDef("zibble", { "frobble": { type: "zobble" } })));
 
 // force us to check for optional. We do some refactoring again
 assert.strictEqual(
-renderNoCtx(makeDef("point", { "time created at": { type: { base: "datetime", optional: true } } })),
+renderNoCtx(makeDef("point", { "time created at": { type: "datetime", optional: true } })),
 `
 CREATE TABLE t_Point (
   [ID_Point] INT NOT NULL IDENTITY,

@@ -2,39 +2,47 @@ function toPascalCase(str) {
   return str.split(" ").map(s => s[0].toUpperCase() + s.slice(1).toLowerCase()).join('');
 }
 
-function renderSqlRowBaseType(typeData) {
-  switch (typeData.base) {
+function renderSqlRowBaseType(rowData) {
+  switch (rowData.type) {
     case  "decimal": return `DECIMAL(16, 6)`;
-    case   "string": return `VARCHAR(${typeData.limit})`;
+    case   "string": return `VARCHAR(${rowData.limit})`;
     case "datetime": return `DATETIME`;
     case      "int": return `INT`;
-    default: throw new Error(`Unexpected field base type: ${typeData.base}`);
+    default: throw new Error(`Unexpected field base type: ${rowData.type}`);
   }
 }
 
-function renderSqlRowType(typeData) {
-  let result = renderSqlRowBaseType(typeData);
-  if (typeData.optional) {
-    result = result + " NULL";
+function renderSqlRowType(rowData) {
+  let result = renderSqlRowBaseType(rowData);
+  if (rowData.optional) {
+    result += " NULL";
   } else {
-    result = result + " NOT NULL";
+    result += " NOT NULL";
   }
   return result;
 }
 
-function renderPreprocessedSqlRow(fieldName, typeData) {
-    const type = renderSqlRowType(typeData);
-    return `[${fieldName}] ${type}`;
+function renderPreprocessedSqlRow(bareData) {
+    const type = renderSqlRowType(bareData);
+    return `[${bareData.name}] ${type}`;
+}
+
+function preprocessSqlRow(field, fieldData) {
+  if (fieldData.type == "relation-out")
+    return {
+      name: `ID_${toPascalCase(fieldData.target)}`,
+      type: "int",
+    };
+  else
+    return {
+      name: toPascalCase(field),
+      ...fieldData,
+    };
 }
 
 function renderSqlRow(field, fieldData) {
-  if (fieldData.type.base == "relation-out") {
-    const fieldName = `ID_${toPascalCase(fieldData.type.target)}`;
-    return renderPreprocessedSqlRow(fieldName, { base: "int" });
-  } else {
-    const fieldName = toPascalCase(field);
-    return renderPreprocessedSqlRow(fieldName, fieldData.type);
-  }
+  let bareData = preprocessSqlRow(field, fieldData);
+  return renderPreprocessedSqlRow(bareData);
 }
 
 function renderSqlDefinition(entity) {

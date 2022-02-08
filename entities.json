@@ -1,35 +1,48 @@
 {
   "entities": [
+
     {
       "name": "recipe",
       "fields": {
         "creator": {
-          "type": { "base": "relation-out", "target": "user" }
+          "type": "relation-out",
+          "target": "user"
         },
         "creation time": {
-          "type": { "base": "datetime" }
+          "type": "datetime"
         },
         "description": {
-          "type": { "base": "string", "limit": "300" }
+          "type": "string",
+          "limit": "300"
         },
         "kilo calories": {
-          "type": { "base": "decimal", "optional": true, "precision": 16, "range": 6 }
+          "type": "decimal",
+          "optional": true,
+          "precision": 16,
+          "range": 6
         }
       }
     },
+
     {
       "name": "dinner event",
       "fields": {
         "meal": {
-          "type": { "base": "relation-out", "target": "recipe" }
+          "type": "relation-out",
+          "target": "recipe"
         },
         "venue": {
-          "type": { "base": "relation-out", "target": "physical location" }
+          "type": "relation-out",
+          "target": "physical location"
         },
         "price": {
-          "type": { "base": "decimal", "optional": true, "precision": 16, "range": 6 }
+          "type": "decimal",
+          "optional": true,
+          "precision": 16,
+          "range": 6
         }
       }
     }
+
   ]
 }
