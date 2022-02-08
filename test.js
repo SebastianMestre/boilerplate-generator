@@ -28,6 +28,7 @@ CREATE TABLE t_Meal (
 GO;
 `);
 
+// use a different name, force us out of using a constant
 assert.strictEqual(
 renderNoCtx({ name: "point" }),
 `
@@ -38,6 +39,7 @@ CREATE TABLE t_Point (
 GO;
 `);
 
+// use two words, force us out of hard-coding the name for a single word
 assert.strictEqual(
 renderNoCtx({ name: "two words" }),
 `
@@ -48,6 +50,7 @@ CREATE TABLE t_TwoWords (
 GO;
 `);
 
+// force us to check for fields
 assert.strictEqual(
 renderNoCtx(makeDef("meal", { "kilo calories": makeDecimal(16, 6) })),
 `
@@ -59,6 +62,7 @@ CREATE TABLE t_Meal (
 GO;
 `);
 
+// force us to check for multiple fields
 assert.strictEqual(
 renderNoCtx(makeDef("meal", {
   "kilo calories": makeDecimal(16, 6),
@@ -74,6 +78,7 @@ CREATE TABLE t_Meal (
 GO;
 `);
 
+// force us to check for string fields
 assert.strictEqual(
 renderNoCtx(makeDef("point", { "creator username": makeString(100) })),
 `
@@ -85,6 +90,7 @@ CREATE TABLE t_Point (
 GO;
 `);
 
+// force us to handle different limits on string fields
 assert.strictEqual(
 renderNoCtx(makeDef("point", { "creator username": makeString(300) })),
 `
@@ -96,6 +102,7 @@ CREATE TABLE t_Point (
 GO;
 `);
 
+// force us to check for datetime fields. we do a nice refactor at this point
 assert.strictEqual(
 renderNoCtx({
   name: "point",
@@ -112,9 +119,11 @@ CREATE TABLE t_Point (
 GO;
 `);
 
+// force us to check for invalid types
 assert.throws(() =>
   renderNoCtx(makeDef("zibble", { "frobble": { type: { base: "zobble" } } })));
 
+// force us to check for optional. We do some refactoring again
 assert.strictEqual(
 renderNoCtx(makeDef("point", { "time created at": { type: { base: "datetime", optional: true } } })),
 `
@@ -126,6 +135,9 @@ CREATE TABLE t_Point (
 GO;
 `);
 
+// at this point I started implementing 'foreign keys' by iterating on the REPL.
+// not TDD, but I feel it achieves some of the same goals. TODO: add some tests
+// after-the-fact to prevent regression.
 let data = require('./entities.json');
 // console.log(data);
 // data.entities.forEach(entity => console.log(entity));
