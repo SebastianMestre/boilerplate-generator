@@ -1,20 +1,9 @@
 const assert = require('assert');
 const renderSql = require('./render-sql.js');
+const {makeDef, makeString, makeDecimal} = require('./test-utils.js');
 
 function renderNoCtx(definition) {
   return renderSql.renderSqlDefinition(definition);
-}
-
-function makeDecimal(precision, range) {
-  return { type: "decimal", precision, range };
-}
-
-function makeString(limit) {
-  return { type: "string", limit };
-}
-
-function makeDef(name, fields) {
-  return {name, fields};
 }
 
 // First test to get us going
@@ -138,8 +127,22 @@ GO;
 // at this point I started implementing 'foreign keys' by iterating on the REPL.
 // not TDD, but I feel it achieves some of the same goals. TODO: add some tests
 // after-the-fact to prevent regression.
-let data = require('./entities.json');
+// let data = require('./entities.json');
 // console.log(data);
 // data.entities.forEach(entity => console.log(entity));
-console.log(renderNoCtx(data.entities[0]));
-console.log(renderNoCtx(data.entities[1]));
+// console.log(renderNoCtx(data.entities[0]));
+// console.log(renderNoCtx(data.entities[1]));
+
+// force us to handle different precision and range in decimals
+assert.strictEqual(
+renderNoCtx(makeDef("sale", { "value in dollars": { type: "decimal", precision: 10, range: 2 } })),
+`
+CREATE TABLE t_Sale (
+  [ID_Sale] INT NOT NULL IDENTITY,
+  [ValueInDollars] DECIMAL(10, 2) NOT NULL,
+  CONSTRAINT [PK_Sale] PRIMARY KEY([ID_Sale]),
+);
+GO;
+`);
+
+

@@ -1,10 +1,8 @@
-function toPascalCase(str) {
-  return str.split(" ").map(s => s[0].toUpperCase() + s.slice(1).toLowerCase()).join('');
-}
+const { toPascalCase } = require('./utils.js');
 
 function renderSqlRowBaseType(rowData) {
   switch (rowData.type) {
-    case  "decimal": return `DECIMAL(16, 6)`;
+    case  "decimal": return `DECIMAL(${rowData.precision}, ${rowData.range})`;
     case   "string": return `VARCHAR(${rowData.limit})`;
     case "datetime": return `DATETIME`;
     case      "int": return `INT`;
