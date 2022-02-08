@@ -22,3 +22,11 @@ public class Client
 {
 }
 `);
+
+// use a two word name to force us to look at every word
+assert.strictEqual(renderNoCtx({ name: "physical location" }),
+`
+public class PhysicalLocation
+{
+}
+`);
