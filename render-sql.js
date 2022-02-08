@@ -53,11 +53,7 @@ function renderTable(table) {
 
   const tableName = `t_${table.name}`;
 
-  const formattedConstraints = [];
-  for (const constraint of table.constraints) {
-    formattedConstraints.push(renderSqlConstraint(constraint));
-  }
-
+  const formattedConstraints = table.constraints.map(renderSqlConstraint);
   const formattedColumns = table.columns.map(renderSqlColumn);
 
   const lines = [...formattedColumns, ...formattedConstraints];
