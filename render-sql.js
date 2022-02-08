@@ -58,7 +58,7 @@ function renderTable(table) {
 
   const lines = [...formattedColumns, ...formattedConstraints];
 
-  const formatLine = x => "  " + x + ",\n";
+  const formatLine = line => "  " + line + ",\n";
   const formattedLines = lines.map(formatLine).join("");
 
   return `
