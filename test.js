@@ -5,11 +5,21 @@ function renderNoCtx(definition) {
   return renderSql.renderSqlDefinition(definition);
 }
 
+function makeDecimal(precision, range) {
+  return { type: { base: "decimal", precision, range } };
+}
+
+function makeString(limit) {
+  return { type: { base: "string", limit } };
+}
+
+function makeDef(name, fields) {
+  return {name, fields};
+}
+
 // First test to get us going
 assert.strictEqual(
-renderNoCtx({
-  name: "meal"
-}),
+renderNoCtx({ name: "meal" }),
 `
 CREATE TABLE t_Meal (
   [ID_Meal] INT NOT NULL IDENTITY,
@@ -19,9 +29,7 @@ GO;
 `);
 
 assert.strictEqual(
-renderNoCtx({
-  name: "point"
-}),
+renderNoCtx({ name: "point" }),
 `
 CREATE TABLE t_Point (
   [ID_Point] INT NOT NULL IDENTITY,
@@ -31,9 +39,7 @@ GO;
 `);
 
 assert.strictEqual(
-renderNoCtx({
-  name: "two words"
-}),
+renderNoCtx({ name: "two words" }),
 `
 CREATE TABLE t_TwoWords (
   [ID_TwoWords] INT NOT NULL IDENTITY,
@@ -43,12 +49,7 @@ GO;
 `);
 
 assert.strictEqual(
-renderNoCtx({
-  name: "Meal",
-  fields: {
-    "kilo calories": { type: { base: "decimal", precision: 16, range: 6 } }
-  }
-}),
+renderNoCtx(makeDef("meal", { "kilo calories": makeDecimal(16, 6) })),
 `
 CREATE TABLE t_Meal (
   [ID_Meal] INT NOT NULL IDENTITY,
@@ -59,13 +60,10 @@ GO;
 `);
 
 assert.strictEqual(
-renderNoCtx({
-  name: "meal",
-  fields: {
-    "kilo calories": { type: { base: "decimal", precision: 16, range: 6 } },
-    "user rating":   { type: { base: "decimal", precision: 16, range: 6 } }
-  }
-}),
+renderNoCtx(makeDef("meal", {
+  "kilo calories": makeDecimal(16, 6),
+  "user rating": makeDecimal(16, 6)
+})),
 `
 CREATE TABLE t_Meal (
   [ID_Meal] INT NOT NULL IDENTITY,
@@ -77,12 +75,7 @@ GO;
 `);
 
 assert.strictEqual(
-renderNoCtx({
-  name: "point",
-  fields: {
-    "creator username": { type: { base: "string", limit: 100 } }
-  }
-}),
+renderNoCtx(makeDef("point", { "creator username": makeString(100) })),
 `
 CREATE TABLE t_Point (
   [ID_Point] INT NOT NULL IDENTITY,
@@ -93,12 +86,7 @@ GO;
 `);
 
 assert.strictEqual(
-renderNoCtx({
-  name: "point",
-  fields: {
-    "creator username": { type: { base: "string", limit: 300 } }
-  }
-}),
+renderNoCtx(makeDef("point", { "creator username": makeString(300) })),
 `
 CREATE TABLE t_Point (
   [ID_Point] INT NOT NULL IDENTITY,
@@ -124,22 +112,11 @@ CREATE TABLE t_Point (
 GO;
 `);
 
-assert.throws(
-() => {
-renderNoCtx({
-  name: "zibble",
-  fields: {
-    "frobble": { type: { base: "zobble" } }
-  }
-})});
+assert.throws(() =>
+  renderNoCtx(makeDef("zibble", { "frobble": { type: { base: "zobble" } } })));
 
 assert.strictEqual(
-renderNoCtx({
-  name: "point",
-  fields: {
-    "time created at": { type: { base: "datetime", optional: true } }
-  }
-}),
+renderNoCtx(makeDef("point", { "time created at": { type: { base: "datetime", optional: true } } })),
 `
 CREATE TABLE t_Point (
   [ID_Point] INT NOT NULL IDENTITY,
