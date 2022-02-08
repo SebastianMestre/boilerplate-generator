@@ -1,31 +1,42 @@
 const { toPascalCase } = require('./utils.js');
 
-function renderSqlRowBaseType(rowData) {
-  switch (rowData.type) {
-    case  "decimal": return `DECIMAL(${rowData.precision}, ${rowData.range})`;
-    case   "string": return `VARCHAR(${rowData.limit})`;
-    case "datetime": return `DATETIME`;
-    case      "int": return `INT`;
-    default: throw new Error(`Unexpected field base type: ${rowData.type}`);
+function renderSqlDefinition(entity) {
+  const tableData = convertEntityToTable(entity);
+  return renderTable(tableData);
+}
+
+function convertEntityToTable(entity) {
+
+  const tableName = toPascalCase(entity.name);
+  const columns = [
+    {
+      name: `ID_${tableName}`,
+      type: 'int',
+      identity: true,
+    }
+  ];
+
+  const constraints = [
+    {
+      name: `PK_${tableName}`,
+      type: 'primary',
+      target: `ID_${tableName}`,
+    }
+  ];
+
+  for (const field in entity.fields) {
+    const columnData = convertFieldToSqlColumn(field, entity.fields[field]);
+    columns.push(columnData);
   }
+
+  return {
+    name: tableName,
+    columns,
+    constraints,
+  };
 }
 
-function renderSqlRowType(rowData) {
-  let result = renderSqlRowBaseType(rowData);
-  if (rowData.optional) {
-    result += " NULL";
-  } else {
-    result += " NOT NULL";
-  }
-  return result;
-}
-
-function renderPreprocessedSqlRow(bareData) {
-    const type = renderSqlRowType(bareData);
-    return `[${bareData.name}] ${type}`;
-}
-
-function preprocessSqlRow(field, fieldData) {
+function convertFieldToSqlColumn(field, fieldData) {
   if (fieldData.type == "relation-out")
     return {
       name: `ID_${toPascalCase(fieldData.target)}`,
@@ -38,41 +49,22 @@ function preprocessSqlRow(field, fieldData) {
     };
 }
 
-function preprocessDefinition(entity) {
-  const preprocessedRows = [];
-
-  for (const field in entity.fields) {
-    const fieldData = entity.fields[field];
-    const bareData = preprocessSqlRow(field, fieldData);
-    preprocessedRows.push(bareData);
-  }
-
-  return {
-    name: entity.name,
-    columns: preprocessedRows,
-  };
-}
-
 function renderTable(table) {
-  const PascalCasedName = toPascalCase(table.name);
 
-  const tableName = `t_${PascalCasedName}`;
-  const primaryKeyRow = `ID_${PascalCasedName}`;
+  const tableName = `t_${table.name}`;
 
-  const formattedRows = [
-    `[${primaryKeyRow}] INT NOT NULL IDENTITY`,
-  ];
-
-  const formattedConstraints = [
-    `CONSTRAINT [PK_${PascalCasedName}] PRIMARY KEY([${primaryKeyRow}])`,
-  ];
-
-  for (const bareData of table.columns) {
-    const formattedRow = renderPreprocessedSqlRow(bareData);
-    formattedRows.push(formattedRow);
+  const formattedConstraints = [];
+  for (const constraint of table.constraints) {
+    formattedConstraints.push(`CONSTRAINT [${constraint.name}] PRIMARY KEY([${constraint.target}])`);
   }
 
-  const lines = [...formattedRows, ...formattedConstraints];
+  const formattedColumns = [];
+  for (const bareData of table.columns) {
+    const formattedColumn = renderSqlColumn(bareData);
+    formattedColumns.push(formattedColumn);
+  }
+
+  const lines = [...formattedColumns, ...formattedConstraints];
 
   const formatLine = arr => arr.map(x => "  " + x + ",\n").join("");
   const formattedLines = formatLine(lines);
@@ -84,10 +76,36 @@ GO;
 `;
 }
 
-function renderSqlDefinition(entity) {
-  const tableData = preprocessDefinition(entity);
-  return renderTable(tableData);
+function renderSqlColumn(bareData) {
+    const type = renderSqlColumnType(bareData);
+    return `[${bareData.name}] ${type}`;
 }
+
+function renderSqlColumnType(rowData) {
+  let result = renderSqlRowBaseType(rowData);
+
+  if (rowData.optional)
+    result += " NULL";
+  else
+    result += " NOT NULL";
+
+  if (rowData.identity)
+    result += " IDENTITY";
+
+  return result;
+}
+
+function renderSqlRowBaseType(rowData) {
+  switch (rowData.type) {
+    case  "decimal": return `DECIMAL(${rowData.precision}, ${rowData.range})`;
+    case   "string": return `VARCHAR(${rowData.limit})`;
+    case "datetime": return `DATETIME`;
+    case      "int": return `INT`;
+    default: throw new Error(`Unexpected field base type: ${rowData.type}`);
+  }
+}
+
+
 
 module.exports = {
   renderSqlDefinition: renderSqlDefinition
