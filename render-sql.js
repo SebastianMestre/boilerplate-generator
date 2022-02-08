@@ -58,11 +58,7 @@ function renderTable(table) {
     formattedConstraints.push(`CONSTRAINT [${constraint.name}] PRIMARY KEY([${constraint.target}])`);
   }
 
-  const formattedColumns = [];
-  for (const bareData of table.columns) {
-    const formattedColumn = renderSqlColumn(bareData);
-    formattedColumns.push(formattedColumn);
-  }
+  const formattedColumns = table.columns.map(renderSqlColumn);
 
   const lines = [...formattedColumns, ...formattedConstraints];
 
