@@ -60,7 +60,7 @@ function renderTable(table) {
 
   const formatLine = x => "  " + x + ",\n";
   const formatLines = arr => arr.map(formatLine).join("");
-  const formattedLines = formatLines(lines);
+  const formattedLines = lines.map(formatLine).join("");
 
   return `
 CREATE TABLE ${tableName} (
