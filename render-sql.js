@@ -30,7 +30,7 @@ function convertEntityToTable(entity) {
   }
 
   const result = {
-    formattedName: `t_${tableName}`,
+    name: `t_${tableName}`,
     columns,
     constraints,
   };
@@ -52,7 +52,7 @@ function convertFieldToSqlColumn(field, fieldData) {
 
 function renderTable(table) {
 
-  const tableName = table.formattedName;
+  const tableName = table.name;
 
   const formattedConstraints = table.constraints.map(renderSqlConstraint);
   const formattedColumns = table.columns.map(renderSqlColumn);
