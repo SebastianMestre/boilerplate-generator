@@ -2,7 +2,6 @@ const { toPascalCase } = require('./utils.js');
 
 function renderSqlDefinition(entity) {
   const tableData = convertEntityToTable(entity);
-  tableData.formattedName = `t_${tableData.name}`;
   return renderTable(tableData);
 }
 
@@ -35,6 +34,7 @@ function convertEntityToTable(entity) {
     columns,
     constraints,
   };
+  result.formattedName = `t_${result.name}`;
   return result;
 }
 
