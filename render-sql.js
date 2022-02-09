@@ -31,10 +31,10 @@ function convertEntityToTable(entity) {
 
   const result = {
     name: tableName,
+    formattedName: `t_${tableName}`,
     columns,
     constraints,
   };
-  result.formattedName = `t_${tableName}`;
   return result;
 }
 
