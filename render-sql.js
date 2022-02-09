@@ -52,8 +52,6 @@ function convertFieldToSqlColumn(field, fieldData) {
 
 function renderTable(table) {
 
-  const tableName = table.name;
-
   const formattedConstraints = table.constraints.map(renderSqlConstraint);
   const formattedColumns = table.columns.map(renderSqlColumn);
 
@@ -63,7 +61,7 @@ function renderTable(table) {
   const formattedLines = lines.map(formatLine).join("");
 
   return `
-CREATE TABLE ${tableName} (
+CREATE TABLE ${table.name} (
 ${formattedLines});
 GO;
 `;
