@@ -51,7 +51,8 @@ function convertFieldToSqlColumn(field, fieldData) {
 
 function renderTable(table) {
 
-  const tableName = `t_${table.name}`;
+  table.formattedName = `t_${table.name}`;
+  const tableName = table.formattedName;
 
   const formattedConstraints = table.constraints.map(renderSqlConstraint);
   const formattedColumns = table.columns.map(renderSqlColumn);
