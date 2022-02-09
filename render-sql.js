@@ -30,11 +30,12 @@ function convertEntityToTable(entity) {
     columns.push(columnData);
   }
 
-  return {
+  const result = {
     name: tableName,
     columns,
     constraints,
   };
+  return result;
 }
 
 function convertFieldToSqlColumn(field, fieldData) {
