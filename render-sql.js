@@ -34,7 +34,7 @@ function convertEntityToTable(entity) {
     columns,
     constraints,
   };
-  result.formattedName = `t_${result.name}`;
+  result.formattedName = `t_${tableName}`;
   return result;
 }
 
